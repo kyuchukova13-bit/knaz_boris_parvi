@@ -1,0 +1,290 @@
+
+
+
+<!DOCTYPE html>
+<html lang="bg">
+<head>
+    <meta charset="UTF-8">
+    <title>Княз Борис I - Исторически Дуел</title>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@700;900&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-gradient: linear-gradient(135deg, #A7FDCC 0%, #12DAFB 50%, #1FA0FF 100%);
+            --team-light: #1CA7EC;
+            --team-dark: #1F2F98;
+            --glass: rgba(255, 255, 255, 0.9);
+            --shadow-3d: 0 8px 0 #bdc3c7, 0 15px 20px rgba(0,0,0,0.1);
+        }
+
+        body {
+            font-family: 'Montserrat', sans-serif;
+            background: var(--bg-gradient);
+            margin: 0;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            overflow: hidden;
+            color: #2c3e50;
+        }
+
+        .screen { display: none; width: 100%; height: 100%; flex-direction: column; align-items: center; justify-content: center; position: relative; }
+        .active { display: flex; }
+
+        .hero-title { 
+            font-size: 85px; 
+            font-weight: 900; 
+            margin: 0; 
+            text-transform: uppercase; 
+            color: #2c3e50;
+            text-shadow: 4px 4px 0px white;
+        }
+        .author-tag { font-size: 22px; font-weight: 700; color: var(--team-dark); margin-bottom: 20px; }
+
+        .wheel-container {
+            position: relative;
+            width: 360px;
+            height: 360px;
+            border: 15px solid white;
+            border-radius: 50%;
+            box-shadow: 0 20px 50px rgba(0,0,0,0.2);
+            background: white;
+            margin-bottom: 20px;
+        }
+        #wheel {
+            width: 100%; height: 100%;
+            border-radius: 50%;
+            transition: transform 4s cubic-bezier(0.1, 0, 0.1, 1);
+            background: conic-gradient(
+                var(--team-light) 0deg 45deg, var(--team-dark) 45deg 90deg, 
+                var(--team-light) 90deg 135deg, var(--team-dark) 135deg 180deg,
+                var(--team-light) 180deg 225deg, var(--team-dark) 225deg 270deg,
+                var(--team-light) 270deg 315deg, var(--team-dark) 315deg 360deg
+            );
+        }
+
+        .scoreboard {
+            width: 90%;
+            max-width: 1000px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: var(--glass);
+            padding: 15px 40px;
+            border-radius: 100px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            margin-top: 10px;
+        }
+        .team-pill {
+            padding: 12px 30px; border-radius: 50px; color: white;
+            font-weight: 800; font-size: 24px; transition: 0.4s; opacity: 0.4;
+        }
+        .t1-pill { background-color: var(--team-light); }
+        .t2-pill { background-color: var(--team-dark); }
+        .active-team { opacity: 1; transform: scale(1.1); box-shadow: 0 0 20px white, 0 0 30px currentColor; }
+
+        .main-quiz-area {
+            width: 90%;
+            max-width: 1000px;
+            height: 520px;
+            background: var(--glass);
+            margin: 15px 0;
+            border-radius: 35px;
+            padding: 30px;
+            box-sizing: border-box;
+            display: flex;
+            flex-direction: column;
+            box-shadow: 0 15px 35px rgba(0,0,0,0.1);
+        }
+
+        #q-text { height: 110px; font-size: 28px; font-weight: 900; text-align: center; display: flex; align-items: center; justify-content: center; line-height: 1.2; }
+        
+        /* Промяна за 2 колони */
+        .answers-grid { 
+            display: grid; 
+            grid-template-columns: 1fr 1fr; 
+            gap: 15px; 
+            height: 200px; 
+            justify-content: center; 
+        }
+
+        .btn-answer {
+            background: #fdfdfd; border: none; padding: 12px 20px; font-size: 18px;
+            font-weight: 700; border-radius: 15px; cursor: pointer;
+            box-shadow: var(--shadow-3d); transition: 0.2s; text-align: left;
+        }
+        .btn-answer:active { transform: translateY(4px); box-shadow: 0 4px 0 #bdc3c7; }
+        .correct { background: #2ecc71 !important; color: white !important; box-shadow: 0 8px 0 #27ae60 !important; }
+        .wrong { background: #e74c3c !important; color: white !important; box-shadow: 0 8px 0 #c0392b !important; }
+
+        .fact-zone { height: 100px; margin-top: 20px; display: flex; align-items: center; }
+        #fact-box { width: 100%; background: white; padding: 15px; border-radius: 15px; font-size: 17px; visibility: hidden; border-left: 8px solid var(--team-dark); }
+
+        .nav-corner { position: absolute; bottom: 25px; z-index: 100; }
+        .corner-left { left: 30px; }
+        .corner-right { right: 30px; }
+
+        /* Намален размер САМО за навигационните бутони */
+        .btn-action {
+            padding: 10px 25px; font-size: 16px; font-weight: 800;
+            border-radius: 50px; border: none; cursor: pointer;
+            box-shadow: 0 8px 15px rgba(0,0,0,0.2); transition: 0.3s;
+            color: white;
+        }
+        /* Запазваме оригиналния размер за големите бутони */
+        .btn-spin { background: var(--team-dark); padding: 18px 45px; font-size: 22px; }
+        .btn-start { background: #27ae60; padding: 14px 30px; font-size: 18px; }
+        .btn-results { background: #e67e22; }
+        .btn-next { background: var(--team-dark); }
+    </style>
+</head>
+<body>
+
+    <div id="start-screen" class="screen active">
+        <h1 class="hero-title">Княз Борис I</h1>
+        <div class="author-tag">Създадено от Дочка Кючукова</div>
+        
+        <div class="wheel-container">
+            <div style="position:absolute; top:-20px; left:50%; transform:translateX(-50%); width:0; height:0; border-left:20px solid transparent; border-right:20px solid transparent; border-top:40px solid #2c3e50; z-index:10;"></div>
+            <div id="wheel"></div>
+        </div>
+
+        <button onclick="spinWheel()" id="spin-btn" class="btn-action btn-spin">ЗАВЪРТИ КОЛЕЛОТО</button>
+        <button id="go-btn" class="btn-action btn-start nav-corner corner-right" style="display:none;" onclick="showGame()">ЗАПОЧНИ ИГРАТА →</button>
+    </div>
+
+    <div id="game-screen" class="screen">
+        <div class="scoreboard">
+            <div id="p1" class="team-pill t1-pill">СЛАВЯНИ</div>
+            <div style="font-size: 50px; font-weight: 900;"><span id="sc1">0</span> : <span id="sc2">0</span></div>
+            <div id="p2" class="team-pill t2-pill">ПРАБЪЛГАРИ</div>
+        </div>
+
+        <div class="main-quiz-area">
+            <div id="q-text">Зареждане...</div>
+            <div class="answers-grid" id="ans-grid"></div>
+            <div class="fact-zone">
+                <div id="fact-box"></div>
+            </div>
+        </div>
+
+        <button class="btn-action btn-results nav-corner corner-left" onclick="showEnd()">КЪМ РЕЗУЛТАТИТЕ</button>
+        <button id="next-btn" class="btn-action btn-next nav-corner corner-right" style="display:none;" onclick="nextQ()">СЛЕДВАЩ ВЪПРОС →</button>
+    </div>
+
+    <div id="end-screen" class="screen">
+        <div style="background: white; padding: 50px; border-radius: 40px; text-align: center; box-shadow: 0 20px 50px rgba(0,0,0,0.2); max-width: 600px;">
+            <h2 style="font-size: 30px; color: #7f8c8d;">КРАЕН РЕЗУЛТАТ</h2>
+            <h1 id="winner-text" style="font-size: 42px; margin: 25px 0; color: var(--team-dark);">...</h1>
+            <div style="display: flex; gap: 20px; justify-content: center; margin-bottom: 30px;">
+                <div style="background: var(--team-light); color: white; padding: 15px; border-radius: 20px; min-width: 140px;">
+                    СЛАВЯНИ: <br><span id="f-sc1" style="font-size: 36px; font-weight: 900;">0</span>
+                </div>
+                <div style="background: var(--team-dark); color: white; padding: 15px; border-radius: 20px; min-width: 140px;">
+                    ПРАБЪЛГАРИ: <br><span id="f-sc2" style="font-size: 36px; font-weight: 900;">0</span>
+                </div>
+            </div>
+            <button onclick="location.reload()" class="btn-action btn-spin">НОВА ИГРА</button>
+        </div>
+    </div>
+
+<script>
+    const questions = [
+        { q: "Какво име приема хан Борис при своето покръстване?", a: ["А) Симеон", "Б) Михаил", "В) Аспарух", "Г) Тервел"], c: 1, f: "Владетелят приел името на византийския император Михаил III." },
+        { q: "Къде е бил покръстен княз Борис I през 864 година?", a: ["А) В Търново", "Б) В Преслав", "В) В Плиска", "Г) В София"], c: 2, f: "Покръстването се извършва в тогавашната столица Плиска." },
+        { q: "Коя е основната цел на княз Борис I при покръстването?", a: ["А) Да започне война", "Б) Да обедини народа", "В) Да смени столицата", "Г) Да построи дворци"], c: 1, f: "Общата вяра спомогнала за обединяването на българи и славяни." },
+        { q: "Как се нарича общността на християните и тяхното духовенство?", a: ["А) Манастир", "Б) Папство", "В) Църква", "Г) Държава"], c: 2, f: "Думата 'църква' означава общността на вярващите и духовниците." },
+        { q: "С кой духовен водач Борис води преговори за независима църква?", a: ["А) Император Михаил", "Б) Папа Николай I", "В) Хан Кубрат", "Г) Ученик на Исус"], c: 1, f: "Князът изпратил писмо със 115 въпроса до папа Николай I." },
+        { q: "Какво се случва със старите светилища след Покръстването?", a: ["А) Били разрушени", "Б) Станали пазари", "В) Станали храмове", "Г) Били изоставени"], c: 2, f: "Старите светилища били заменени с християнски храмове." },
+        { q: "През коя година България получава самостоятелна църква?", a: ["А) 681 г.", "Б) 864 г.", "В) 870 г.", "Г) 893 г."], c: 2, f: "През 870 година била създадена самостоятелна Българска църква." },
+        { q: "Колко години делят основаването на България от Покръстването?", a: ["А) 100 години", "Б) 183 години", "В) 210 години", "Г) 50 години"], c: 1, f: "От 681 г. до 864 г. са изминали точно 183 години." },
+        { q: "Кога християнството започва да се разпространява по нашите земи?", a: ["А) Още през 1. век", "Б) През 7. век", "В) През 9. век", "Г) През 10. век"], c: 0, f: "Християнството е разпространявано от ученици на Исус Христос още през 1. век." },
+        { q: "В кои антични градове по нашите земи е имало ранни християни?", a: ["А) Само в Плиска", "Б) Пловдив и София", "В) Преслав и Търново", "Г) Само по морето"], c: 1, f: "Общности се появили в Пловдив, Варна, София и др." },
+        { q: "Кои по-ранни български владетели са приели новата вяра?", a: ["А) Аспарух и Крум", "Б) Кубрат и Тервел", "В) Омуртаг и Маламир", "Г) Никой преди Борис"], c: 1, f: "Хановете Кубрат и Тервел също са приели новата вяра." },
+        { q: "Кои са били най-големите европейски държави през 9. век?", a: ["А) Русия и Англия", "Б) Византия и Немско", "В) Италия и Франция", "Г) Испания и Египет"], c: 1, f: "Византия и Немското кралство са били водещи сили." },
+        { q: "Как се променя титлата на Борис след покръстването?", a: ["А) От цар на хан", "Б) От хан на княз", "В) От вожд на крал", "Г) От хан на император"], c: 1, f: "След промяната владетелят заменя титлата хан с княз." },
+        { q: "Коя група хора се противопоставя на новата вяра чрез бунт?", a: ["А) Селяните", "Б) Група боляри", "В) Занаятчиите", "Г) Търговците"], c: 1, f: "Група боляри се вдигнали на бунт, но владетелят го потушил." },
+        { q: "Какво означава думата 'духовенство' според урока?", a: ["А) Всички вярващи", "Б) Група за служба на Бога", "В) Владетелите", "Г) Учените хора"], c: 1, f: "Духовенството е група в обществото, която служи на Бога." },
+        { q: "Коя е най-голямата християнска сграда, построена в Плиска?", a: ["А) Златната църква", "Б) Голямата базилика", "В) Боянската църква", "Г) Рилският манастир"], c: 1, f: "Голямата базилика е била най-големият храм по онова време." },
+        { q: "Кой е духовният водач на Римската църква?", a: ["А) Патриарх", "Б) Папа", "В) Княз", "Г) Император"], c: 1, f: "Папа се нарича духовният водач на Римската църква." },
+        { q: "Къде се пазят днес отговорите на папата до княз Борис?", a: ["А) В София", "Б) Във Ватикана", "В) В Плиска", "Г) В Цариград"], c: 1, f: "Отговорите се пазят във Ватиканската библиотека." },
+        { q: "Какво качество на държавник проявява Борис в преговорите?", a: ["А) Решителност", "Б) Отличен дипломат", "В) Строгост", "Г) Несигурност"], c: 1, f: "В преговорите княз Борис I се проявява като отличен дипломат." },
+        { q: "Защо Борис избира християнството за държавна религия?", a: ["А) По случайност", "Б) Да изравни страната с Европа", "В) По желание на болярите", "Г) Заради нова война"], c: 1, f: "Чрез него България станала равна с големите европейски държави." }
+    ];
+
+    let current = 0, scores = [0, 0], activeTeam = 0, rotation = 0;
+
+    function spinWheel() {
+        rotation += 1800 + Math.random() * 360;
+        document.getElementById('wheel').style.transform = `rotate(${rotation}deg)`;
+        document.getElementById('spin-btn').disabled = true;
+        setTimeout(() => {
+            activeTeam = (Math.floor((rotation % 360) / 45) % 2 === 0) ? 0 : 1;
+            document.getElementById('go-btn').style.display = 'block';
+        }, 4000);
+    }
+
+    function showGame() {
+        document.getElementById('start-screen').classList.remove('active');
+        document.getElementById('game-screen').classList.add('active');
+        loadQ();
+    }
+
+    function loadQ() {
+        if(current >= questions.length) { showEnd(); return; }
+        document.getElementById('next-btn').style.display = 'none';
+        document.getElementById('fact-box').style.visibility = 'hidden';
+        const q = questions[current];
+        document.getElementById('q-text').innerText = (current + 1) + ". " + q.q;
+        const grid = document.getElementById('ans-grid');
+        grid.innerHTML = "";
+        q.a.forEach((ans, i) => {
+            const b = document.createElement('button');
+            b.className = 'btn-answer';
+            b.innerText = ans;
+            b.onclick = () => select(i);
+            grid.appendChild(b);
+        });
+        updateUI();
+    }
+
+    function select(idx) {
+        const q = questions[current];
+        const btns = document.querySelectorAll('.btn-answer');
+        btns.forEach(b => b.disabled = true);
+        if(idx === q.c) {
+            btns[idx].classList.add('correct');
+            scores[activeTeam] += 10;
+        } else {
+            btns[idx].classList.add('wrong');
+            btns[q.c].classList.add('correct');
+        }
+        document.getElementById('sc1').innerText = scores[0];
+        document.getElementById('sc2').innerText = scores[1];
+        document.getElementById('fact-box').innerHTML = "<b>💡 ПОДСКАЗКА:</b> " + q.f;
+        document.getElementById('fact-box').style.visibility = 'visible';
+        document.getElementById('next-btn').style.display = 'block';
+    }
+
+    function nextQ() {
+        current++;
+        activeTeam = (activeTeam === 0) ? 1 : 0;
+        loadQ();
+    }
+
+    function updateUI() {
+        document.getElementById('p1').classList.toggle('active-team', activeTeam === 0);
+        document.getElementById('p2').classList.toggle('active-team', activeTeam === 1);
+    }
+
+    function showEnd() {
+        document.getElementById('game-screen').classList.remove('active');
+        document.getElementById('end-screen').classList.add('active');
+        document.getElementById('f-sc1').innerText = scores[0];
+        document.getElementById('f-sc2').innerText = scores[1];
+        let win = scores[0] > scores[1] ? "ПОБЕДА ЗА СЛАВЯНИТЕ!" : (scores[1] > scores[0] ? "ПОБЕДА ЗА ПРАБЪЛГАРИТЕ!" : "РАВЕНСТВО!");
+        document.getElementById('winner-text').innerText = win;
+    }
+</script>
+</body>
+</html>
